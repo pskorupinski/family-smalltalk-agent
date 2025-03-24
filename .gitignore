@@ -56,3 +56,6 @@ local_settings.py
 
 # Documentation
 docs/_build/
+
+# personal
+temp.txt
