@@ -13,6 +13,7 @@ import os
 from tools.humancontacthistory import HumansAndContactsEventsReaderTool, ContactEventRecorderTool
 from tools.humanmessaginginterface import HumanMessagingInterfaceTool
 from tools.nextcontactschedule import NextContactScheduleTool
+from tools.humanavailabilityverifier import HumanAvailabilityVerifierTool
 
 class AgentState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
@@ -29,12 +30,14 @@ class SmallTalkAgent:
         self._tool2 = HumanMessagingInterfaceTool()
         self._tool3 = ContactEventRecorderTool()
         self._tool4 = NextContactScheduleTool()
+        self._tool5 = HumanAvailabilityVerifierTool()
 
         self._tools = [
             self._tool1.definition,
             self._tool2.definition,
             self._tool3.definition,
-            self._tool4.definition
+            self._tool4.definition,
+            self._tool5.definition
         ]
         self._llm_with_tools = self._model.bind_tools(self._tools, parallel_tool_calls=False)
         self._create_graph()
@@ -63,7 +66,11 @@ class SmallTalkAgent:
             
             Before you message, you want to understand the history of your interactions with the humans. You want to be very fair in which human you choose to message. It is very important that you contact any human only once per day. If someone was contacted today, avoid any additional contacts.
 
-            When preparing a message, you want to be very kind and friendly and in that tone engage a human in a small talk, address them by name. In the first message, you want to inform a human why you chose them today over other humans (so they know it's not random) and ask a little engaging question.
+            You also want to verify if the human is available to receive a message. If the human is not available, you want to avoid contacting them.
+
+            When preparing a message, you want to be very kind and friendly and in that tone engage a human in a small talk, address them by name. In the first message, you want to:
+            - Provide a precise rationale why you chose them today over other humans, considering the history of your interactions with them, today's availability of the humans and the fact that you want to be fair and do not want to be overwhelming.
+            - Ask a little engaging question.
 
             Remember to keep a record of all your contact events, so you can take fair decisions in the future.
             
@@ -74,6 +81,7 @@ class SmallTalkAgent:
             - {self._tool2.description()}
             - {self._tool3.description()}
             - {self._tool4.description()}
+            - {self._tool5.description()}
             """
         )
 

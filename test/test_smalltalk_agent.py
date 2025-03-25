@@ -42,8 +42,8 @@ def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_conta
     conn = sqlite3.connect("state.db")
     cursor = conn.cursor()
     
-    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", (None, None, "Pawel"))
-    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", (None, None, "Giulia"))
+    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", (None, "B2:66:C2:5D:17:71", "Pawel"))
+    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", (None, "3A:52:10:1D:4D:75", "Giulia"))
     
     conn.commit()
     
@@ -65,7 +65,8 @@ def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_conta
     
 
     # WHEN
-    messages = [HumanMessage(content="Have a chat with a human.")]
+    now_str = datetime.now().strftime("%I:%M%p on %B %d, %Y")
+    messages = [HumanMessage(content=f"Good morning, it's {now_str}. Have a chat with a human, but not if you already contacted someone today or no one is available.")]
     result = smalltalk_agent.compiled_graph.invoke({"messages": messages})
 
 
@@ -134,7 +135,7 @@ def test_smalltalk_agent_should_skip_contact_if_someone_was_contacted_today():
 
     # WHEN
     now_str = datetime.now().strftime("%I:%M%p on %B %d, %Y")
-    messages = [HumanMessage(content=f"Good morning, it's {now_str}. Have a chat with a human, but not if you already contacted someone today.")]
+    messages = [HumanMessage(content=f"Good morning, it's {now_str}. Have a chat with a human, but not if you already contacted someone today or no one is available.")]
     result = smalltalk_agent.compiled_graph.invoke({"messages": messages})
 
 
