@@ -42,8 +42,8 @@ def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_conta
     conn = sqlite3.connect("state.db")
     cursor = conn.cursor()
     
-    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", (None, "B2:66:C2:5D:17:71", "Pawel"))
-    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", (None, "3A:52:10:1D:4D:75", "Giulia"))
+    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", ("pawel.skorupinski@gmail.com", "B2:66:C2:5D:17:71", "Pawel"))
+    cursor.execute("INSERT INTO Human (email, phone, name) VALUES (?, ?, ?)", ("giulia.foglia0808@gmail.com", "3A:52:10:1D:4D:75", "Giulia"))
     
     conn.commit()
     
@@ -66,7 +66,7 @@ def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_conta
 
     # WHEN
     now_str = datetime.now().strftime("%I:%M%p on %B %d, %Y")
-    messages = [HumanMessage(content=f"Good morning, it's {now_str}. Have a chat with a human, but not if you already contacted someone today or no one is available.")]
+    messages = [HumanMessage(content=f"Good morning, it's {now_str}. Have a chat with a human, but not if you already contacted someone today or no one is available. If the human sends you a response within a minute, send a goodbye follow up message.")]
     result = smalltalk_agent.compiled_graph.invoke({"messages": messages})
 
 
