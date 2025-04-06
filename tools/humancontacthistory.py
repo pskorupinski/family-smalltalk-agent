@@ -15,13 +15,13 @@ class Human:
 
 
 class ContactEvent:
-    def __init__(self, id, human_id, datetime_):
+    def __init__(self, id, human_id, datetime_, response_received_):
         self.id = id
         self.human_id = human_id
         self.datetime_ = datetime_
-    
+        self.response_received = response_received_
     def __repr__(self):
-        return f"ContactEvent(id={self.id}, human_id={self.human_id}, datetime_='{self.datetime_}')"
+        return f"ContactEvent(id={self.id}, human_id={self.human_id}, datetime_='{self.datetime_}', response_received={self.response_received})"
 
 
 class HumansAndContactsEventsReaderTool:
@@ -42,13 +42,13 @@ class HumansAndContactsEventsReaderTool:
         humans = [Human(id_, email, phone, name) for (id_, email, phone, name) in human_rows]
 
         # Retrieve all rows from ContactEvent
-        cursor.execute("SELECT id, human_id, datetime FROM ContactEvent")
+        cursor.execute("SELECT id, human_id, datetime, response_received FROM ContactEvent")
         contact_event_rows = cursor.fetchall()
         
         # Create a list of ContactEvent objects
         contact_events = [
-            ContactEvent(id_, human_id, datetime_) 
-            for (id_, human_id, datetime_) in contact_event_rows
+            ContactEvent(id_, human_id, datetime_, response_received) 
+            for (id_, human_id, datetime_, response_received) in contact_event_rows
         ]
 
         # Close the connection
@@ -79,7 +79,7 @@ class ContactEventRecorderTool:
     def __init__(self):
         pass
 
-    def use(self, human_name: str) -> int:
+    def use(self, human_name: str, response_received: bool) -> int:
         conn = sqlite3.connect("state.db")
         cursor = conn.cursor()
 
@@ -93,16 +93,16 @@ class ContactEventRecorderTool:
         now_str = datetime.now().isoformat()
         
         cursor.execute("""
-            INSERT INTO ContactEvent (human_id, datetime)
-            VALUES (?, ?)
-        """, (human_id, now_str))
+            INSERT INTO ContactEvent (human_id, datetime, response_received )
+            VALUES (?, ?, ?)
+        """, (human_id, now_str, int(response_received)))
         
-        new_contact_id = cursor.lastrowid
+        contact_event_id = cursor.lastrowid
         
         conn.commit()
         conn.close()
         
-        return new_contact_id
+        return contact_event_id
             
     def description(self) -> str:
         return """
@@ -111,7 +111,8 @@ class ContactEventRecorderTool:
 
             Args:
                 human_name: str - The name of the human you contacted.
-
+                response_received: bool - Whether the human responded to your messages or not.
+            
             Returns:
                 int - The ID of the contact event.
             """

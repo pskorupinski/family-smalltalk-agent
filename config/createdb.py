@@ -26,6 +26,7 @@ def create_database(db_file: str):
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         human_id INTEGER,
         datetime TEXT,
+        response_received INTEGER,
         FOREIGN KEY (human_id) REFERENCES Human(id)
     );
     """)

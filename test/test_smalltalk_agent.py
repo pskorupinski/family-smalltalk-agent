@@ -57,16 +57,16 @@ def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_conta
     time_ago_str = time_ago_25_hours.isoformat()
     
     cursor.execute("""
-        INSERT INTO ContactEvent (human_id, datetime) 
-        VALUES (?, ?)
-    """, (giulia_id, time_ago_str))
+        INSERT INTO ContactEvent (human_id, datetime, response_received) 
+        VALUES (?, ?, ?)
+    """, (giulia_id, time_ago_str, True))
     conn.commit()
     conn.close()
     
 
     # WHEN
     now_str = datetime.now().strftime("%I:%M%p on %B %d, %Y")
-    messages = [HumanMessage(content=f"Good morning, it's {now_str}. Have a chat with a human, but not if you already contacted someone today or no one is available. If the human sends you a response within a minute, send a goodbye follow up message.")]
+    messages = [HumanMessage(content=f"Have a chat with a human, but not if you already contacted someone today or no one is available. If the human sends you a response within a minute, send a goodbye follow up message.")]
     result = smalltalk_agent.compiled_graph.invoke({"messages": messages})
 
 
