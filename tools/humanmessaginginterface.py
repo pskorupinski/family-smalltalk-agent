@@ -24,9 +24,16 @@ class HumanMessagingInterfaceTool:
             creds = Credentials.from_authorized_user_file('token.json', ['https://www.googleapis.com/auth/gmail.modify'])
         
         if not creds or not creds.valid:
+            new_creds_needed = False
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
+                try:
+                    creds.refresh(Request())
+                except:
+                    new_creds_needed = True
             else:
+                new_creds_needed = True
+            
+            if new_creds_needed == True:
                 flow = InstalledAppFlow.from_client_secrets_file("credentials.json", ['https://www.googleapis.com/auth/gmail.modify']
                 )
                 creds = flow.run_local_server(port=0)
