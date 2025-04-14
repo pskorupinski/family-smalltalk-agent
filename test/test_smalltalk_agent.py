@@ -10,8 +10,6 @@ sys.path.append(os.path.realpath(f"{dir_path}/.."))
 from smalltalk_agent import SmallTalkAgent
 
 
-smalltalk_agent = SmallTalkAgent()
-
 
 def _extract_tool_calls(messages: list[AnyMessage]):
     tool_calls = []
@@ -37,6 +35,9 @@ def _clean_up():
 def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_contact_event():
     _clean_up()
 
+    smalltalk_agent = SmallTalkAgent(observability_conf={
+        "tags": "test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_contact_event"
+    })
 
     # GIVEN
     conn = sqlite3.connect("state.db")
@@ -106,6 +107,9 @@ def test_smalltalk_agent_should_choose_fairly_between_humans_and_store_new_conta
 def test_smalltalk_agent_should_skip_contact_if_someone_was_contacted_today():
     _clean_up()
 
+    smalltalk_agent = SmallTalkAgent(observability_conf={
+        "run_name": "test_smalltalk_agent_should_skip_contact_if_someone_was_contacted_today"
+    })
 
     # GIVEN
     conn = sqlite3.connect("state.db")

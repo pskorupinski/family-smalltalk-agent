@@ -26,11 +26,14 @@ class AgentState(TypedDict):
 
 
 class SmallTalkAgent:
-    def __init__(self):
+    def __init__(self, observability_conf: object = {}):
         load_dotenv()
         self._model = ChatOpenAI(
             model="gpt-4o",
             api_key=os.getenv("OPENAI_API_KEY"))
+        
+        observability_conf["callbacks"] = [langfuse_handler]
+        self._observability_conf = observability_conf
 
         self._tool1 = HumansAndContactsEventsReaderTool()
         self._tool2 = HumanMessagingInterfaceTool()
@@ -63,7 +66,7 @@ class SmallTalkAgent:
             tools_condition
         )
         builder.add_edge("tools", "assistant")
-        self._graph = builder.compile().with_config({"callbacks": [langfuse_handler]})
+        self._graph = builder.compile().with_config(self._observability_conf)
 
     def _assistant(self, state: AgentState):
         sys_msg = SystemMessage(
