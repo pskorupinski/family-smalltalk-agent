@@ -6,6 +6,7 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import tools_condition
 from langgraph.prebuilt import ToolNode
+from langfuse.callback import CallbackHandler
 from IPython.display import Image, display
 from dotenv import load_dotenv
 import os
@@ -15,6 +16,10 @@ from tools.humancontacthistory import HumansAndContactsEventsReaderTool, Contact
 from tools.humanmessaginginterface import HumanMessagingInterfaceTool
 from tools.nextcontactschedule import NextContactScheduleTool
 from tools.humanavailabilityverifier import HumanAvailabilityVerifierTool
+
+# Initialize Langfuse CallbackHandler for Langchain (tracing)
+langfuse_handler = CallbackHandler()
+
 
 class AgentState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
@@ -58,7 +63,7 @@ class SmallTalkAgent:
             tools_condition
         )
         builder.add_edge("tools", "assistant")
-        self._graph = builder.compile()
+        self._graph = builder.compile().with_config({"callbacks": [langfuse_handler]})
 
     def _assistant(self, state: AgentState):
         sys_msg = SystemMessage(
